@@ -205,54 +205,39 @@ void dichuyen(){
   }
 }
 //----------------------
-void hang() {
-  const int MOTOR_4_SPEED = 4096; // tốc độ tối đa cho động cơ 4
+void linear() {
+  // Điều khiển ĐỒNG THỜI 2 ĐỘNG CƠ 30RPM (MOTOR_3 và MOTOR_4) ra/vào tuyến tính
 
-  if (ps2x.ButtonPressed(PSB_CIRCLE)) { // WEST
-    // Quay động cơ 4 chiều nâng (A chạy, B dừng)
+  const int MOTOR_3_SPEED = 4096;  // Tốc độ cho động cơ 3 (0-4095)
+  const int MOTOR_4_SPEED = 4096;  // Tốc độ cho động cơ 4
+
+  // Kiểm tra nút L1 - Mở rộng linear (đi ra)
+  if (ps2x.Button(PSB_L1) && dangdichuyen == 0) {
+    // Động cơ 3 & 4 đi ra (A chạy, B dừng)
+    pwm.setPin(MOTOR_3_CHANNEL_A, MOTOR_3_SPEED);
+    pwm.setPin(MOTOR_3_CHANNEL_B, 0);
     pwm.setPin(MOTOR_4_CHANNEL_A, MOTOR_4_SPEED);
     pwm.setPin(MOTOR_4_CHANNEL_B, 0);
-    Serial.println("Motor 4 nâng tải (WEST)");
+    Serial.println("Linear motors 3 & 4 extending");
   }
-  else if (ps2x.ButtonPressed(PSB_SQUARE)) { // EAST
-    // Quay động cơ 4 chiều hạ (A dừng, B chạy)
+  // Kiểm tra nút L2 - Thu linear (đi vào)
+  else if (ps2x.Button(PSB_L2) && dangdichuyen == 0) {
+    // Động cơ 3 & 4 đi vào (A dừng, B chạy)
+    pwm.setPin(MOTOR_3_CHANNEL_A, 0);
+    pwm.setPin(MOTOR_3_CHANNEL_B, MOTOR_3_SPEED);
     pwm.setPin(MOTOR_4_CHANNEL_A, 0);
     pwm.setPin(MOTOR_4_CHANNEL_B, MOTOR_4_SPEED);
-    Serial.println("Motor 4 hạ tải (EAST)");
+    Serial.println("Linear motors 3 & 4 retracting");
   }
+  // Nếu không có nút nào được nhấn, dừng cả 2 động cơ
   else {
-    // Dừng động cơ 4
+    pwm.setPin(MOTOR_3_CHANNEL_A, 0);
+    pwm.setPin(MOTOR_3_CHANNEL_B, 0);
     pwm.setPin(MOTOR_4_CHANNEL_A, 0);
     pwm.setPin(MOTOR_4_CHANNEL_B, 0);
   }
 }
 //----------------------
-void linear() {
-  // Điều khiển chỉ ĐỘNG CƠ 3 (30RPM) ra/vào tuyến tính
-
-  const int MOTOR_3_SPEED = 4096;  // Tốc độ cho động cơ 3 (0-4095)
-
-  // Kiểm tra nút L1 - Mở rộng linear (đi ra)
-  if (ps2x.Button(PSB_L1) && dangdichuyen == 0) {
-    // Động cơ 3 đi ra (A chạy, B dừng)
-    pwm.setPin(MOTOR_3_CHANNEL_A, MOTOR_3_SPEED);
-    pwm.setPin(MOTOR_3_CHANNEL_B, 0);
-    Serial.println("Linear motor 3 extending");
-  }
-  // Kiểm tra nút L2 - Thu linear (đi vào)
-  else if (ps2x.Button(PSB_L2) && dangdichuyen == 0) {
-    // Động cơ 3 đi vào (A dừng, B chạy)
-    pwm.setPin(MOTOR_3_CHANNEL_A, 0);
-    pwm.setPin(MOTOR_3_CHANNEL_B, MOTOR_3_SPEED);
-    Serial.println("Linear motor 3 retracting");
-  }
-  // Nếu không có nút nào được nhấn, dừng động cơ 3
-  else {
-    pwm.setPin(MOTOR_3_CHANNEL_A, 0);
-    pwm.setPin(MOTOR_3_CHANNEL_B, 0);
-  }
-}
-//--------------- Khởi tạo giá trị -------------
 void setup()
 {
   Serial.begin(115200);
@@ -302,6 +287,5 @@ void loop() {
   linear();
   giu_tha_bong();
   kep_nong_san();
-  hang();
   delay(20);
 }
