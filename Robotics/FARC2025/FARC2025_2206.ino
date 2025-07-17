@@ -39,30 +39,34 @@
  ******************************************************************/
 #define pressures false
 #define rumble true
-
+int pulse_thuan = 480;
+int_pulse_stop_thuan=400;
+int pulse_nguoc = 240;
+int pulse_stop_nguoc=300;
+int pulse_stop = 330 ; 
 int pulse = 150;
-int servo_min_1 = 120, servo_max_1 = 280;
-int servo_min = 120, servo_max = 350;
+int servo_min_1 = 120, servo_max_1 = 350;
 unsigned char thabong = 0 , thanongsan=0;
 unsigned char dangdichuyen = 0;
-
 PS2X ps2x; // khởi tạo class PS2x
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();// khởi tạo class Servo
 
 //--------------- Khai báo hàm --------------
+
 void kep_nong_san(){
-  if (ps2x.ButtonPressed(PSB_PAD_LEFT) && thanongsan==0){
-    // khi nhấn pad_left cho servo quay về 0 độ 
-    thanongsan = 1 ; 
-    Serial.println("Servo quay về 0 độ (PAD_LEFT)");
-     for (pulse = servo_max; pulse >servo_min; pulse--){
-      pwm.setPWM(SERVO_2_CHANNEL, 0, pulse);}
+  if (ps2x.Button(PSB_CIRCLE)) {
+    // Nhấn nút CIRCLE => servo quay thuận
+    Serial.println("Servo số 2 quay thuận (CIRCLE)");
+    pwm.setPWM(SERVO_2_CHANNEL, 0, pulse_thuan);
   }
-  else if (ps2x.ButtonPressed(PSB_PAD_RIGHT) && thanongsan==1 ){
-    thanongsan= 0 ;
-    Serial.println("Servo quay về 180 độ (Pad_right)");
-    for (pulse = servo_min; pulse < servo_max; pulse++){
-      pwm.setPWM(SERVO_2_CHANNEL, 0, pulse);}
+  else if (ps2x.Button(PSB_SQUARE)) {
+    // Nhấn nút SQUARE => servo quay ngược
+    Serial.println("Servo số 2 quay ngược (SQUARE)");
+    pwm.setPWM(SERVO_2_CHANNEL, 0, pulse_nguoc);
+  }
+  else {
+    // Không nhấn nút nào => servo dừng lại
+    pwm.setPWM(SERVO_2_CHANNEL, 0, pulse_stop);
   }
 }
 //----------------------
@@ -289,3 +293,4 @@ void loop() {
   kep_nong_san();
   delay(20);
 }
+ 
